@@ -41,4 +41,65 @@ class Credit {
       installments: installments,
     );
   }
+
+  /// Obtiene el número de cuotas pagadas
+  int getPaidInstallments() {
+    return installments.where((inst) => inst.paid).length;
+  }
+
+  /// Obtiene el número de cuotas pendientes
+  int getRemainingInstallments() {
+    return installments.where((inst) => !inst.paid).length;
+  }
+
+  /// Obtiene la primera cuota no pagada
+  Installment? getNextUnpaidInstallment() {
+    try {
+      return installments.firstWhere((inst) => !inst.paid);
+    } catch (e) {
+      return null; // No hay cuotas pendientes
+    }
+  }
+
+  /// Calcula el capital por pagar (suma de capital de cuotas no pagadas)
+  double getRemainingCapital() {
+    return installments
+        .where((inst) => !inst.paid)
+        .fold(0.0, (sum, inst) => sum + inst.capital);
+  }
+
+  /// Calcula el total adeudado con lógica dinámica:
+  /// - Si estamos en el mes de la siguiente cuota, suma la cuota completa (capital + interés)
+  /// - Si no, solo retorna el capital pendiente
+  double getTotalOwed() {
+    final remainingCapital = getRemainingCapital();
+    final nextInstallment = getNextUnpaidInstallment();
+    
+    if (nextInstallment == null) {
+      return 0.0; // No hay cuotas pendientes
+    }
+
+    // Parsear el monthLabel (formato: "M/YYYY")
+    final parts = nextInstallment.monthLabel.split('/');
+    if (parts.length != 2) {
+      return remainingCapital; // Formato inválido, solo retornar capital
+    }
+
+    try {
+      final int paymentMonth = int.parse(parts[0]);
+      final int paymentYear = int.parse(parts[1]);
+      
+      final now = DateTime.now();
+      
+      // Si estamos en el mes y año de la siguiente cuota, sumar la cuota completa
+      if (now.year == paymentYear && now.month == paymentMonth) {
+        return remainingCapital + nextInstallment.interest;
+      }
+      
+      // Si no, solo retornar el capital pendiente
+      return remainingCapital;
+    } catch (e) {
+      return remainingCapital; // Error al parsear, retornar solo capital
+    }
+  }
 }

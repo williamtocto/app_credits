@@ -1,9 +1,14 @@
+// lib/widgets/amortization_table.dart
 import 'package:flutter/material.dart';
 import '../models/credit_model.dart';
+import '../models/installment_model.dart';
 
+/// Widget que muestra la tabla de amortización.
+/// onPaidToggle recibe el [Installment] que se marcó/desmarcó.
+/// Se acepta una función asíncrona: Future<void> Function(Installment)
 class AmortizationTable extends StatelessWidget {
   final Credit credit;
-  final Function(int) onPaidToggle;
+  final Future<void> Function(Installment) onPaidToggle;
 
   const AmortizationTable({
     super.key,
@@ -13,38 +18,54 @@ class AmortizationTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: DataTable(
-        columns: const [
-          DataColumn(label: Text('N°')),
-          DataColumn(label: Text('Mes de Pago')),
-          DataColumn(label: Text('Saldo Capital')),
-          DataColumn(label: Text('Cuota Fija')),
-          DataColumn(label: Text('Interés')),
-          DataColumn(label: Text('Total')),
-          DataColumn(label: Text('Pagado')),
-        ],
-        rows: credit.installments
-            .asMap()
-            .entries
-            .map(
-              (entry) => DataRow(
+    // Si no hay cuotas, mostramos un placeholder
+    if (credit.installments.isEmpty) {
+      return const Center(child: Text('No hay cuotas para este crédito.'));
+    }
+
+    return SafeArea(
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: SingleChildScrollView(
+          scrollDirection: Axis.vertical,
+          padding: const EdgeInsets.only(bottom: 80), // Padding para evitar que se oculte detrás de la barra inferior
+          child: DataTable(
+            headingRowHeight: 40,
+            dataRowMinHeight: 32,
+            dataRowMaxHeight: 40,
+            columns: const [
+              DataColumn(label: Text('N°')),
+              DataColumn(label: Text('Fecha de Pago')),
+              DataColumn(label: Text('Saldo Capital')),
+              DataColumn(label: Text('Capital')),
+              DataColumn(label: Text('Interés')),
+              DataColumn(label: Text('Total')),
+              DataColumn(label: Text('Pagado')),
+            ],
+            rows: credit.installments.asMap().entries.map((entry) {
+              final inst = entry.value;
+
+              return DataRow(
                 cells: [
-                  DataCell(Text("${entry.value.number}")),
-                  DataCell(Text(entry.value.monthLabel)),
-                  DataCell(Text(entry.value.balance.toStringAsFixed(2))),
-                  DataCell(Text(entry.value.capital.toStringAsFixed(2))),
-                  DataCell(Text(entry.value.interest.toStringAsFixed(2))),
-                  DataCell(Text(entry.value.total.toStringAsFixed(2))),
-                  DataCell(Checkbox(
-                    value: entry.value.paid,
-                    onChanged: (_) => onPaidToggle(entry.key),
-                  )),
+                  DataCell(Text(inst.number.toString())),
+                  DataCell(Text(inst.dueDateFormatted)),
+                  DataCell(Text(inst.balance.toStringAsFixed(2))),
+                  DataCell(Text(inst.capital.toStringAsFixed(2))),
+                  DataCell(Text(inst.interest.toStringAsFixed(2))),
+                  DataCell(Text(inst.total.toStringAsFixed(2))),
+                  DataCell(
+                    Checkbox(
+                      value: inst.paid,
+                      onChanged: (bool? value) async {
+                        await onPaidToggle(inst);
+                      },
+                    ),
+                  ),
                 ],
-              ),
-            )
-            .toList(),
+              );
+            }).toList(),
+          ),
+        ),
       ),
     );
   }
