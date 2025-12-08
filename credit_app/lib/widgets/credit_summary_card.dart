@@ -48,9 +48,9 @@ class _CreditSummaryCardState extends State<CreditSummaryCard> {
             // Header verde con el título y el ícono
             Container(
               padding: const EdgeInsets.all(16),
-              decoration: const BoxDecoration(
-                color: Color(0xFF4CAF50),
-                borderRadius: BorderRadius.only(
+              decoration: BoxDecoration(
+                color: Theme.of(context).primaryColor,
+                borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(12),
                   topRight: Radius.circular(12),
                 ),
@@ -103,10 +103,10 @@ class _CreditSummaryCardState extends State<CreditSummaryCard> {
                   // Número de crédito
                   Text(
                     'N° de Crédito: ${widget.credit.id ?? 0}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF4CAF50),
+                      color: Theme.of(context).primaryColor,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -122,17 +122,17 @@ class _CreditSummaryCardState extends State<CreditSummaryCard> {
                         const TextSpan(text: 'Tienes '),
                         TextSpan(
                           text: '$remainingInstallments',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF4CAF50),
+                            color: Theme.of(context).primaryColor,
                           ),
                         ),
                         const TextSpan(text: ' cuotas de '),
                         TextSpan(
                           text: '$totalInstallments',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF4CAF50),
+                            color: Theme.of(context).primaryColor,
                           ),
                         ),
                         const TextSpan(text: ' pendientes'),
@@ -162,19 +162,19 @@ class _CreditSummaryCardState extends State<CreditSummaryCard> {
                   const SizedBox(height: 16),
                   
                   // Link "Ver todos mis créditos"
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton(
-                      onPressed: widget.onTap,
-                      child: const Text(
-                        'Ver todos mis créditos',
-                        style: TextStyle(
-                          color: Color(0xFF4CAF50),
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  ),
+                  // Align(
+                  //   alignment: Alignment.centerRight,
+                  //   child: TextButton(
+                  //     onPressed: widget.onTap,
+                  //     child: const Text(
+                  //       'Ver todos mis créditos',
+                  //       style: TextStyle(
+                  //         color: Color(0xFF4CAF50),
+                  //         fontWeight: FontWeight.w500,
+                  //       ),
+                  //     ),
+                  //   ),
+                  // ),
                 ],
               ),
             ),

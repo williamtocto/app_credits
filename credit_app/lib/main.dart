@@ -1,15 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'pages/home_page.dart';
 import 'dart:io';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'core/theme/app_theme.dart';
+import 'providers/theme_provider.dart';
+import 'services/notification_service.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
   if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
     sqfliteFfiInit();
     databaseFactory = databaseFactoryFfi;
   }
-  runApp(const BaseApp());
+  
+  // Inicializar servicio de notificaciones
+  await NotificationService.instance.initialize();
+  
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => ThemeProvider()..initialize(),
+      child: const BaseApp(),
+    ),
+  );
 }
 
 class BaseApp extends StatelessWidget {
@@ -17,11 +31,27 @@ class BaseApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Gestor de Créditos',
-      theme: AppTheme.lightTheme,
-      debugShowCheckedModeBanner: false,
-      home: const HomePage(),
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        // Mostrar pantalla de carga mientras se inicializa el tema
+        if (!themeProvider.isInitialized) {
+          return const MaterialApp(
+            debugShowCheckedModeBanner: false,
+            home: Scaffold(
+              body: Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
+          );
+        }
+
+        return MaterialApp(
+          title: 'Gestor de Créditos',
+          theme: AppTheme.fromColors(themeProvider.currentColors),
+          debugShowCheckedModeBanner: false,
+          home: const HomePage(),
+        );
+      },
     );
   }
 }

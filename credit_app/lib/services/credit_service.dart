@@ -2,6 +2,7 @@ import '../models/credit_model.dart';
 import '../models/installment_model.dart';
 import '../services/db_services.dart';
 import '../services/settings_service.dart';
+import '../services/notification_service.dart';
 
 class CreditService {
   final DBService _db = DBService.instance;
@@ -56,7 +57,11 @@ class CreditService {
 
     // 5️⃣ Recargar el crédito desde la base de datos con todas las cuotas
     final loadedCredit = await _db.getCreditById(creditId);
-    return loadedCredit!;
+    
+    // 6️⃣ Programar notificaciones para las cuotas
+    await _scheduleNotificationsForCredit(loadedCredit!);
+    
+    return loadedCredit;
   }
 
   /// Obtener todos los créditos
@@ -72,15 +77,49 @@ class CreditService {
   /// Marcar una cuota como pagada
   Future<void> markInstallmentPaid(int installmentId) async {
     await _db.markInstallmentPaid(installmentId);
+    // Cancelar notificación de esta cuota
+    await NotificationService.instance.cancelInstallmentNotification(installmentId);
   }
 
   /// Desmarcar una cuota como pagada
   Future<void> unmarkInstallmentPaid(int installmentId) async {
     await _db.unmarkInstallmentPaid(installmentId);
+    // Reprogramar notificación para esta cuota
+    // Obtener todas las cuotas y encontrar la que se desmarcó
+    final allCredits = await _db.getAllCredits();
+    Installment? targetInstallment;
+    
+    // Buscar la cuota que coincida con este ID
+    for (final credit in allCredits) {
+      for (final installment in credit.installments) {
+        if (installment.id == installmentId) {
+          targetInstallment = installment;
+          break;
+        }
+      }
+      if (targetInstallment != null) break;
+    }
+    
+    if (targetInstallment != null) {
+      final settings = SettingsService.instance;
+      final enabled = await settings.getNotificationsEnabled();
+      final reminderDays = await settings.getReminderDays();
+      if (enabled) {
+        await NotificationService.instance.scheduleInstallmentReminder(
+          targetInstallment,
+          reminderDays,
+        );
+      }
+    }
   }
 
   /// Eliminar un crédito
   Future<void> deleteCredit(int creditId) async {
+    // Obtener crédito para cancelar notificaciones
+    final credit = await _db.getCreditById(creditId);
+    if (credit != null) {
+      await NotificationService.instance.cancelCreditNotifications(credit);
+    }
     await _db.deleteCredit(creditId);
   }
 
@@ -121,13 +160,13 @@ class CreditService {
       // Calcular la fecha de vencimiento según el modo configurado
       final DateTime dueDate;
       if (paymentMode == PaymentDateMode.secondSaturday) {
-        // Segundo sábado del mes
-        dueDate = _getSecondSaturday(startDate.year, startDate.month + (month - 1));
+        // Segundo sábado del mes (empezando desde el siguiente mes)
+        dueDate = _getSecondSaturday(startDate.year, startDate.month + month);
       } else {
-        // Día específico del mes (día del startDate)
+        // Día específico del mes (día del startDate, empezando desde el siguiente mes)
         dueDate = DateTime(
           startDate.year,
-          startDate.month + (month - 1),
+          startDate.month + month,
           startDate.day,
         );
       }
@@ -161,5 +200,23 @@ class CreditService {
     
     // Agregar 7 días para obtener el segundo sábado
     return firstSaturday.add(const Duration(days: 7));
+  }
+
+  /// Programar notificaciones para todas las cuotas de un crédito
+  Future<void> _scheduleNotificationsForCredit(Credit credit) async {
+    final settings = SettingsService.instance;
+    final enabled = await settings.getNotificationsEnabled();
+    final reminderDays = await settings.getReminderDays();
+    
+    if (!enabled) return;
+    
+    for (final installment in credit.installments) {
+      if (!installment.paid && installment.id != null) {
+        await NotificationService.instance.scheduleInstallmentReminder(
+          installment,
+          reminderDays,
+        );
+      }
+    }
   }
 }

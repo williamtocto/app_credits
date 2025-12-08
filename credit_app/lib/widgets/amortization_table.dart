@@ -46,6 +46,12 @@ class AmortizationTable extends StatelessWidget {
               final inst = entry.value;
 
               return DataRow(
+                // Color de fondo suave para cuotas pagadas
+                color: inst.paid
+                    ? WidgetStateProperty.all(
+                        Theme.of(context).primaryColor.withValues(alpha: 0.15),
+                      )
+                    : null,
                 cells: [
                   DataCell(Text(inst.number.toString())),
                   DataCell(Text(inst.dueDateFormatted)),
