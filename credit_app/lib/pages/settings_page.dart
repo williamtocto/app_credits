@@ -13,8 +13,6 @@ class _SettingsPageState extends State<SettingsPage> {
   final SettingsService _settingsService = SettingsService.instance;
   PaymentDateMode? _currentMode;
   bool _isLoading = true;
-  bool _notificationsEnabled = true;
-  int _reminderDays = 3;
 
   @override
   void initState() {
@@ -24,12 +22,8 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Future<void> _loadSettings() async {
     final mode = await _settingsService.getPaymentDateMode();
-    final notifEnabled = await _settingsService.getNotificationsEnabled();
-    final days = await _settingsService.getReminderDays();
     setState(() {
       _currentMode = mode;
-      _notificationsEnabled = notifEnabled;
-      _reminderDays = days;
       _isLoading = false;
     });
   }
@@ -125,89 +119,6 @@ class _SettingsPageState extends State<SettingsPage> {
                     fontSize: 13,
                     color: Colors.grey,
                     fontStyle: FontStyle.italic,
-                  ),
-                ),
-                
-                const SizedBox(height: 24),
-                const Divider(),
-                const SizedBox(height: 16),
-                
-                // Sección de Notificaciones
-                const Text(
-                  'Notificaciones de Pago',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Recibe recordatorios antes de que venzan tus cuotas.',
-                  style: TextStyle(color: Colors.grey),
-                ),
-                const SizedBox(height: 16),
-                
-                Card(
-                  child: SwitchListTile(
-                    title: const Text('Habilitar notificaciones'),
-                    subtitle: const Text('Recibir recordatorios de pago'),
-                    value: _notificationsEnabled,
-                    onChanged: (bool value) async {
-                      await _settingsService.setNotificationsEnabled(value);
-                      setState(() {
-                        _notificationsEnabled = value;
-                      });
-                      if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              value
-                                  ? 'Notificaciones habilitadas'
-                                  : 'Notificaciones deshabilitadas',
-                            ),
-                            duration: const Duration(seconds: 2),
-                          ),
-                        );
-                      }
-                    },
-                  ),
-                ),
-                
-                const SizedBox(height: 12),
-                
-                Card(
-                  child: ListTile(
-                    title: const Text('Días de anticipación'),
-                    subtitle: Text('Recordar $_reminderDays días antes del vencimiento'),
-                    trailing: DropdownButton<int>(
-                      value: _reminderDays,
-                      items: List.generate(7, (index) => index + 1)
-                          .map((days) => DropdownMenuItem(
-                                value: days,
-                                child: Text('$days día${days > 1 ? 's' : ''}'),
-                              ))
-                          .toList(),
-                      onChanged: _notificationsEnabled
-                          ? (int? value) async {
-                              if (value != null) {
-                                await _settingsService.setReminderDays(value);
-                                setState(() {
-                                  _reminderDays = value;
-                                });
-                                if (mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        'Recordatorios configurados para $value día${value > 1 ? 's' : ''} antes',
-                                      ),
-                                      duration: const Duration(seconds: 2),
-                                    ),
-                                  );
-                                }
-                              }
-                            }
-                          : null, // Deshabilitar si las notificaciones están desactivadas
-                    ),
                   ),
                 ),
                 

@@ -29,9 +29,9 @@ class CreditDetailHeader extends StatelessWidget {
             decoration: BoxDecoration(
               color: Theme.of(context).primaryColor,
             ),
-            child: const Text(
-              'Sin ahorro individual',
-              style: TextStyle(
+            child: Text(
+              credit.name,
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 18,
                 fontWeight: FontWeight.w500,

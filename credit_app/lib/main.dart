@@ -5,7 +5,6 @@ import 'dart:io';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'core/theme/app_theme.dart';
 import 'providers/theme_provider.dart';
-import 'services/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -14,9 +13,6 @@ void main() async {
     sqfliteFfiInit();
     databaseFactory = databaseFactoryFfi;
   }
-  
-  // Inicializar servicio de notificaciones
-  await NotificationService.instance.initialize();
   
   runApp(
     ChangeNotifierProvider(

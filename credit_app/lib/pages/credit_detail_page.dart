@@ -43,7 +43,7 @@ class _CreditDetailPageState extends State<CreditDetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(_currentCredit.name)),
+      appBar: AppBar(title: const Text('Detalle del Crédito')),
       body: Column(
         children: [
           // Encabezado con resumen del crédito en la parte superior

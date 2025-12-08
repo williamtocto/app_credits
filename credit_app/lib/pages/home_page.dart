@@ -119,19 +119,19 @@ class _HomePageState extends State<HomePage> {
 
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          final newCredit = await Navigator.push(
+          final result = await Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) => CreateCreditPage(service: _service),
+              builder: (context) => const CreateCreditPage(),
             ),
           );
           
           // If a credit was created, navigate to its detail page
-          if (newCredit != null && context.mounted) {
+          if (result != null && context.mounted) {
             await Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (_) => CreditDetailPage(credit: newCredit, service: _service),
+                builder: (_) => CreditDetailPage(credit: result, service: _service),
               ),
             );
           }

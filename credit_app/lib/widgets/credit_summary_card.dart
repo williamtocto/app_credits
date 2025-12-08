@@ -58,9 +58,9 @@ class _CreditSummaryCardState extends State<CreditSummaryCard> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Sin ahorro individual',
-                    style: TextStyle(
+                  Text(
+                    widget.credit.name,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 18,
                       fontWeight: FontWeight.w500,
