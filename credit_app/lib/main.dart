@@ -42,7 +42,7 @@ class BaseApp extends StatelessWidget {
         }
 
         return MaterialApp(
-          title: 'Gestor de Créditos',
+          title: 'CAC Creditos',
           theme: AppTheme.fromColors(themeProvider.currentColors),
           debugShowCheckedModeBanner: false,
           home: const HomePage(),
