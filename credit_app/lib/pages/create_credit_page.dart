@@ -3,7 +3,9 @@ import 'package:intl/intl.dart';
 import '../services/credit_service.dart';
 
 class CreateCreditPage extends StatefulWidget {
-  const CreateCreditPage({super.key});
+  final bool simulationMode;
+  
+  const CreateCreditPage({super.key, this.simulationMode = false});
 
   @override
   State<CreateCreditPage> createState() => _CreateCreditPageState();
@@ -47,28 +49,44 @@ class _CreateCreditPageState extends State<CreateCreditPage> {
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
       try {
-        final createdCredit = await _service.createCredit(
-          name: _nameController.text.trim(),
-          amount: double.parse(_amountController.text),
-          termMonths: int.parse(_termController.text),
-          monthlyInterest: double.parse(_interestController.text),
-          startDate: _selectedDate,
-        );
-
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Crédito creado exitosamente'),
-              backgroundColor: Colors.green,
-            ),
+        if (widget.simulationMode) {
+          // Modo simulación: solo calcular sin guardar
+          final simulatedCredit = await _service.simulateCredit(
+            name: _nameController.text.trim(),
+            amount: double.parse(_amountController.text),
+            termMonths: int.parse(_termController.text),
+            monthlyInterest: double.parse(_interestController.text),
+            startDate: _selectedDate,
           );
-          Navigator.pop(context, createdCredit);
+
+          if (mounted) {
+            Navigator.pop(context, simulatedCredit);
+          }
+        } else {
+          // Modo normal: guardar el crédito
+          final createdCredit = await _service.createCredit(
+            name: _nameController.text.trim(),
+            amount: double.parse(_amountController.text),
+            termMonths: int.parse(_termController.text),
+            monthlyInterest: double.parse(_interestController.text),
+            startDate: _selectedDate,
+          );
+
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Crédito creado exitosamente'),
+                backgroundColor: Colors.green,
+              ),
+            );
+            Navigator.pop(context, createdCredit);
+          }
         }
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Error al crear crédito: $e'),
+              content: Text('Error al ${widget.simulationMode ? "simular" : "crear"} crédito: $e'),
               backgroundColor: Colors.red,
             ),
           );
@@ -83,7 +101,7 @@ class _CreateCreditPageState extends State<CreateCreditPage> {
     
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Nuevo Crédito'),
+        title: Text(widget.simulationMode ? 'Calculadora de Crédito' : 'Nuevo Crédito'),
         elevation: 0,
       ),
       body: SingleChildScrollView(
@@ -298,14 +316,14 @@ class _CreateCreditPageState extends State<CreateCreditPage> {
                     ),
                     elevation: 2,
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.save, size: 24),
-                      SizedBox(width: 8),
+                      Icon(widget.simulationMode ? Icons.calculate : Icons.save, size: 24),
+                      const SizedBox(width: 8),
                       Text(
-                        'Guardar y Generar Tabla',
-                        style: TextStyle(
+                        widget.simulationMode ? 'Calcular y Ver Tabla' : 'Guardar y Generar Tabla',
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),

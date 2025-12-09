@@ -6,14 +6,15 @@ import '../models/installment_model.dart';
 /// Widget que muestra la tabla de amortización.
 /// onPaidToggle recibe el [Installment] que se marcó/desmarcó.
 /// Se acepta una función asíncrona: `Future<void> Function(Installment)`
+/// Si es null, el checkbox estará deshabilitado (modo solo lectura)
 class AmortizationTable extends StatelessWidget {
   final Credit credit;
-  final Future<void> Function(Installment) onPaidToggle;
+  final Future<void> Function(Installment)? onPaidToggle;
 
   const AmortizationTable({
     super.key,
     required this.credit,
-    required this.onPaidToggle,
+    this.onPaidToggle,
   });
 
   @override
@@ -62,8 +63,8 @@ class AmortizationTable extends StatelessWidget {
                   DataCell(
                     Checkbox(
                       value: inst.paid,
-                      onChanged: (bool? value) async {
-                        await onPaidToggle(inst);
+                      onChanged: onPaidToggle == null ? null : (bool? value) async {
+                        await onPaidToggle!(inst);
                       },
                     ),
                   ),

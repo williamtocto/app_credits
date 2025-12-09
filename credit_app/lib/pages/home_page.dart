@@ -117,30 +117,69 @@ class _HomePageState extends State<HomePage> {
         },
       ),
 
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          final result = await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const CreateCreditPage(),
-            ),
-          );
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          // Botón de Calculadora
+          FloatingActionButton.extended(
+            onPressed: () async {
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const CreateCreditPage(simulationMode: true),
+                ),
+              );
+              
+              // Si se simuló un crédito, mostrar la página de detalle en modo solo lectura
+              if (result != null && context.mounted) {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => CreditDetailPage(
+                      credit: result,
+                      service: _service,
+                      readOnlyMode: true,
+                    ),
+                  ),
+                );
+              }
+            },
+            heroTag: 'calculator', // Necesario para múltiples FABs
+            icon: const Icon(Icons.calculate),
+            label: const Text('Calculadora'),
+            backgroundColor: Colors.orange,
+          ),
           
-          // If a credit was created, navigate to its detail page
-          if (result != null && context.mounted) {
-            await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => CreditDetailPage(credit: result, service: _service),
-              ),
-            );
-          }
+          const SizedBox(width: 16),
           
-          setState(() {
-            _loadCredits();
-          });
-        },
-        child: const Icon(Icons.add),
+          // Botón de Crear Crédito
+          FloatingActionButton(
+            onPressed: () async {
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const CreateCreditPage(),
+                ),
+              );
+              
+              // If a credit was created, navigate to its detail page
+              if (result != null && context.mounted) {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => CreditDetailPage(credit: result, service: _service),
+                  ),
+                );
+              }
+              
+              setState(() {
+                _loadCredits();
+              });
+            },
+            heroTag: 'addCredit', // Necesario para múltiples FABs
+            child: const Icon(Icons.add),
+          ),
+        ],
       ),
     );
   }

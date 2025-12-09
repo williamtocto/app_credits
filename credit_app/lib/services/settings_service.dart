@@ -22,12 +22,12 @@ class SettingsService {
     final String? modeString = prefs.getString(_keyPaymentDateMode);
     
     if (modeString == null) {
-      return PaymentDateMode.specificDay; // Por defecto: día específico
+      return PaymentDateMode.secondSaturday; // Por defecto: segundo sábado
     }
     
     return PaymentDateMode.values.firstWhere(
       (e) => e.toString() == modeString,
-      orElse: () => PaymentDateMode.specificDay,
+      orElse: () => PaymentDateMode.secondSaturday,
     );
   }
 

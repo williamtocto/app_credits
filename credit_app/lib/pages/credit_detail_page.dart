@@ -8,11 +8,13 @@ import '../widgets/credit_detail_header.dart';
 class CreditDetailPage extends StatefulWidget {
   final Credit credit;
   final CreditService service;
+  final bool readOnlyMode;
 
   const CreditDetailPage({
     super.key,
     required this.credit,
     required this.service,
+    this.readOnlyMode = false,
   });
 
   @override
@@ -43,7 +45,9 @@ class _CreditDetailPageState extends State<CreditDetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Detalle del Crédito')),
+      appBar: AppBar(
+        title: Text(widget.readOnlyMode ? 'Simulación de Crédito' : 'Detalle del Crédito'),
+      ),
       body: Column(
         children: [
           // Encabezado con resumen del crédito en la parte superior
@@ -55,7 +59,7 @@ class _CreditDetailPageState extends State<CreditDetailPage> {
           Expanded(
             child: AmortizationTable(
               credit: _currentCredit,
-              onPaidToggle: (Installment installment) async {
+              onPaidToggle: widget.readOnlyMode ? null : (Installment installment) async {
                 // Si ya está pagada, desmarcar sin confirmación
                 if (installment.paid) {
                   await widget.service.unmarkInstallmentPaid(installment.id!);

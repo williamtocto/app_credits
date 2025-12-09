@@ -60,6 +60,36 @@ class CreditService {
     return loadedCredit!;
   }
 
+  /// Simular un crédito sin guardarlo (para calculadora)
+  Future<Credit> simulateCredit({
+    required String name,
+    required double amount,
+    required int termMonths,
+    required double monthlyInterest,
+    required DateTime startDate,
+  }) async {
+    // Generar tabla de amortización
+    final installments = await _generateAmortization(
+      amount: amount,
+      termMonths: termMonths,
+      interestRate: monthlyInterest,
+      startDate: startDate,
+    );
+
+    // Crear el crédito simulado (sin guardar en BD)
+    final credit = Credit(
+      id: -1, // ID temporal para simulación
+      name: name,
+      startDate: startDate,
+      amount: amount,
+      termMonths: termMonths,
+      monthlyInterest: monthlyInterest,
+      installments: installments,
+    );
+
+    return credit;
+  }
+
   /// Obtener todos los créditos
   Future<List<Credit>> getCredits() async {
     return await _db.getAllCredits();
