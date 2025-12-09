@@ -79,7 +79,9 @@ class _SettingsPageState extends State<SettingsPage> {
                       'Ejemplo: Si el crédito se registra el 12 de enero, las cuotas vencen el 12 de cada mes.',
                     ),
                     value: PaymentDateMode.specificDay,
+                    // ignore: deprecated_member_use
                     groupValue: _currentMode,
+                    // ignore: deprecated_member_use
                     onChanged: (value) {
                       if (value != null) _saveMode(value);
                     },
@@ -96,7 +98,9 @@ class _SettingsPageState extends State<SettingsPage> {
                       'Las cuotas vencen el segundo sábado de cada mes, independientemente de la fecha de registro.',
                     ),
                     value: PaymentDateMode.secondSaturday,
+                    // ignore: deprecated_member_use
                     groupValue: _currentMode,
+                    // ignore: deprecated_member_use
                     onChanged: (value) {
                       if (value != null) _saveMode(value);
                     },

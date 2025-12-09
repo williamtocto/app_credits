@@ -96,6 +96,7 @@ class ThemeSettingsPage extends StatelessWidget {
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
+                                    // ignore: deprecated_member_use
                                     'Color principal: #${scheme.primary.value.toRadixString(16).substring(2).toUpperCase()}',
                                     style: const TextStyle(
                                       fontSize: 12,
@@ -119,7 +120,7 @@ class ThemeSettingsPage extends StatelessWidget {
                     ),
                   ),
                 );
-              }).toList(),
+              }),
               
               const SizedBox(height: 16),
               const Divider(),

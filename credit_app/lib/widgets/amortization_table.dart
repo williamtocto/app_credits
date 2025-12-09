@@ -5,7 +5,7 @@ import '../models/installment_model.dart';
 
 /// Widget que muestra la tabla de amortización.
 /// onPaidToggle recibe el [Installment] que se marcó/desmarcó.
-/// Se acepta una función asíncrona: Future<void> Function(Installment)
+/// Se acepta una función asíncrona: `Future<void> Function(Installment)`
 class AmortizationTable extends StatelessWidget {
   final Credit credit;
   final Future<void> Function(Installment) onPaidToggle;

@@ -56,6 +56,7 @@ class AppColors {
   /// Convertir a MaterialColor para usar en ThemeData
   MaterialColor toMaterialColor() {
     return MaterialColor(
+      // ignore: deprecated_member_use
       primary.value,
       <int, Color>{
         50: primary.withValues(alpha: 0.1),
